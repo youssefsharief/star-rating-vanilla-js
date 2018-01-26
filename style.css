@@ -1,3 +1,5 @@
-/* .stars img:hover {
-    background: black
-} */
+#average-container {
+    float: right;
+    width: 300px;
+    border: 1px solid black;
+}

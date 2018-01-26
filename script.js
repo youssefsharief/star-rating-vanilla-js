@@ -1,59 +1,64 @@
 
 let starsRegistered = new Array(10).fill(0)
+let average = null
 
-function onHover(containerIndex, starIndex) {
-    const clonedArray = starsRegistered.slice();
-    clonedArray[containerIndex] = starIndex + 1
-    renderStars(clonedArray)
+function onHover(listIndex, starIndex) {
+    renderStarsForSelectedListAndSelectedStarAction(listIndex, starIndex)
 }
 
+function calculateAndSetNewAverage() {
+    const sum = starsRegistered.reduce((cum, x) =>( cum + x))
+    const count = starsRegistered.filter(x => x !=0).length
+    average = sum/count;
+}
 
-function onStarClick(listIndex, starIndexClicked) {
-    renderStarsInList(listIndex, starIndexClicked)
+function onStarClick(listIndex, starIndex) {
+    starsRegistered[listIndex] = starIndex + 1;
+    calculateAndSetNewAverage();
+    renderStarsForSelectedListAndSelectedStarAction(listIndex, starIndex)
     renderAverageBlock()
-    // alert(`${parseInt(starIndex) +1} stars Selected for container ${parseInt(containerIndex) + 1}`)
 }
 
-function onMouseLeave() {
-    renderStars()
+function onMouseLeave(listIndex) {
+    renderStarsInListforSelectedList(listIndex)
 }
 
 function renderAverageBlock() {
-
+    document.querySelector('#average-container p').innerHTML = average;
+    [...document.querySelector('#average-container div').children].forEach((star, i) => star.className = average < (i+1-0.5) ? 'icon-star-empty' : average >= (i+1) ? 'icon-star': 'icon-star-half-alt')
 }
 
-// function renderStars(starsData = starsRegistered) {
-//     Array.from(document.getElementById('list-container').children).forEach((list, listIndex)=>   renderStarsInList(lis))
-// }
+function getStrsFromList(listIndex) {
+    return [...[...document.getElementById('list-container').children][listIndex].children]
+}
 
-function renderStarsInList(listIndex, starIndexClicked) {
-    console.log(starIndexClicked)
+function renderStarsForSelectedListAndSelectedStarAction(listIndex, starIndex) {
+    return getStrsFromList(listIndex).forEach((star, i) => star.className = starIndex >= i ? 'icon-star' : 'icon-star-empty')
+}
 
-    Array.from(Array.from(document.getElementById('list-container').children)[listIndex].children).forEach((star, starIndex)=>
-            star.className = starIndexClicked >= starIndex ? 'icon-star' : 'icon-star-empty'
-        )
+function renderStarsInListforSelectedList(listIndex) {
+    return getStrsFromList(listIndex).forEach((star, i) => star.className = starsRegistered[listIndex] - 1 >= i ? 'icon-star' : 'icon-star-empty')
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     renderInitiallistContainer();
-    // renderInitialAverageBlock();
+    renderInitialAverageBlock();
 })
 
-// function renderInitialAverageBlock() {
-//     for (let i = 0; i < 5; i++) {
-//         const star = document.createElement('i');
-//         star.classList.add('icon-star-empty')
-//         star.dataset.rate = i
-//         star.id = `star-${i}-average`
-//         starContainer.appendChild(star)
-//     }
-// }
+function renderInitialAverageBlock() {
+    const starsContainer = document.querySelector('#average-container div')
+    for (let i = 0; i < 5; i++) {
+        const star = document.createElement('i');
+        star.classList.add('icon-star-empty')
+        star.dataset.rate = i
+        starsContainer.appendChild(star)
+    }
+}
 
 
 
 function renderInitiallistContainer() {
     const listContainer = document.getElementById('list-container')
-
     for (let j = 0; j < 10; j++) {
         const starContainer = document.createElement('div');
         listContainer.appendChild(starContainer)
@@ -61,10 +66,9 @@ function renderInitiallistContainer() {
             const star = document.createElement('i');
             star.classList.add('icon-star-empty')
             star.addEventListener('click', () => onStarClick(j, i))
-            // star.addEventListener('mouseover', () => onHover(j, i))
-            // star.addEventListener('mouseleave', () => onMouseLeave(j))
+            star.addEventListener('mouseover', () => onHover(j, i))
+            star.addEventListener('mouseleave', () => onMouseLeave(j))
             starContainer.appendChild(star)
         }
     }
-    // renderStars()
 }
